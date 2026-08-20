@@ -1,0 +1,339 @@
+/* =========================================================
+   SPENDINGBUDDY — AUTH DESIGN
+   Matches reference: soft outer glow, dark gradient card,
+   pill inputs, outlined password field w/ eye toggle,
+   solid blue CTA.
+========================================================= */
+
+* { box-sizing: border-box; }
+
+.auth-body{
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 16px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+
+    /* soft pale-blue backdrop like the reference frame */
+    background: #102231;
+}
+
+/* ---------- card ---------- */
+
+.modern-auth-card{
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    border-radius: 32px;
+    padding: 44px 34px 36px;
+
+    background:
+        radial-gradient(120% 90% at 15% 0%, rgba(107, 84, 189, 0.55) 0%, rgba(107, 84, 189, 0) 55%),
+        radial-gradient(100% 80% at 85% 0%, rgba(45, 138, 156, 0.35) 0%, rgba(45, 138, 156, 0) 55%),
+        linear-gradient(180deg, #1b1f2b 0%, #0c0d10 100%);
+
+    box-shadow:
+        0 30px 60px rgba(20, 30, 60, 0.25),
+        0 0 0 8px rgba(255,255,255,0.55);
+}
+
+/* little glyph above the title, standing in for the reference's logo mark */
+.modern-logo{
+    width: 34px;
+    height: 34px;
+    margin: 0 auto 18px;
+    display: block;
+    opacity: 0.9;
+}
+
+.modern-title{
+    color: #ffffff;
+    text-align: center;
+    font-size: 30px;
+    line-height: 1.2;
+    margin: 0 0 6px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.modern-subtitle{
+    color: #9aa4b2;
+    text-align: center;
+    margin: 0 0 30px;
+    font-size: 14px;
+}
+
+.auth-subtitle{
+    color: #9aa4b2;
+    text-align: center;
+    margin: 0 0 24px;
+    font-size: 14px;
+}
+
+/* ---------- form ---------- */
+
+.modern-form,
+.auth-form{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group{
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Plain fields (e.g. email) sit directly on the dark surface, no outer border,
+   matching the "Email address" field in the reference. */
+.input-group.plain input{
+    background: #14171c;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+}
+
+/* The password field (and any field we want to call out) gets its own
+   labeled outline container, matching the reference's "Password" box. */
+.input-group.framed{
+    border: 1.5px solid rgba(255,255,255,0.55);
+    border-radius: 16px;
+    padding: 10px 14px 12px;
+}
+
+.input-group.framed label{
+    color: #e7e9ee;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.input-group label{
+    color: #cfd4dc;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.input-row{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group input,
+.auth-form input{
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 14px 16px;
+    font-size: 15px;
+    outline: none;
+    font-family: inherit;
+}
+
+.auth-form input{
+    background: #14171c;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+}
+
+.input-group.framed .input-row input{
+    padding: 4px 6px;
+}
+
+.input-group input::placeholder,
+.auth-form input::placeholder{
+    color: #6b7280;
+}
+
+.input-group.plain input:focus{
+    border-color: #5b7cff;
+    box-shadow: 0 0 0 4px rgba(91,124,255,0.18);
+}
+
+.input-group.framed:focus-within{
+    border-color: #ffffff;
+}
+
+.toggle-password{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    color: #8b93a1;
+}
+
+.toggle-password:hover{ color: #ffffff; }
+
+.toggle-password svg{ width: 20px; height: 20px; }
+
+/* ---------- button ---------- */
+
+.modern-btn,
+.auth-btn{
+    margin-top: 8px;
+    background: linear-gradient(180deg, #5b7cff 0%, #3757e8 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 12px 22px rgba(55, 87, 232, 0.35);
+}
+
+.modern-btn:hover,
+.auth-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 16px 26px rgba(55, 87, 232, 0.45);
+}
+
+/* ---------- divider + footer link ---------- */
+
+.modern-divider,
+.auth-divider{
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    margin: 26px 0 18px;
+}
+
+.modern-bottom,
+.auth-bottom{
+    text-align: center;
+    color: #9aa4b2;
+    font-size: 13.5px;
+}
+
+.modern-bottom a,
+.auth-bottom a{
+    color: #7c9bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.modern-bottom a:hover,
+.auth-bottom a:hover{
+    text-decoration: underline;
+}
+
+/* =========================
+   ACCOUNT CARD (kept in same visual language)
+========================= */
+
+.account-card{
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    border-radius: 32px;
+    padding: 40px 34px;
+    
+    background:
+        radial-gradient(120% 90% at 15% 0%, rgba(107, 84, 189, 0.55) 0%, rgba(107, 84, 189, 0) 55%),
+        linear-gradient(180deg, #1b1f2b 0%, #0c0d10 100%);
+
+    box-shadow:
+        0 30px 60px rgba(20, 30, 60, 0.25),
+        0 0 0 8px rgba(255,255,255,0.55);
+}
+
+.account-avatar img{
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 16px;
+}
+
+.auth-title{
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.account-name{
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.account-email{
+    color: #9aa4b2;
+    font-size: 13.5px;
+    margin-bottom: 26px;
+}
+
+.account-btn{
+    width: 100%;
+    background: linear-gradient(180deg, #5b7cff 0%, #3757e8 100%);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 12px;
+    box-shadow: 0 12px 22px rgba(55, 87, 232, 0.3);
+}
+
+.logout-btn{
+    background: transparent;
+    box-shadow: none;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: #e7e9ee;
+}
+
+/* =========================
+   MOBILE — account/login/register cards fill the screen
+========================= */
+
+@media (max-width: 768px) {
+
+    .auth-body {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .modern-auth-card,
+    .account-card {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+    background: #ffffff;
+    color: #1f1f1f;
+    border-radius: 16px;
+    padding: 13px;
+    font-size: 14.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.google-btn:hover {
+    background: #f5f5f5;
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Expense - SpendingBuddy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='pages.css') }}">
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span>
+        <span></span>
+    </button>
+        {% if success %}
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <h3>✅ Expense Added Successfully!</h3>
+            <button onclick="closePopup()"style="height: 40px;width: 60px;">OK</button>
+        </div>
+    </div>
+    {% endif %}
+<div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class = "container">
+        <div class = "left">
+            <div>
+                <h1 style="color: #F8FAFC;">SpendingBuddy</h1>
+                <hr class="sidebar-line"style="border: 1px solid #60A5FA;"width="100%">
+                <nav class = "menu">
+                    <div class = "menu-item">
+                        <a href="/">Dashboard</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href="/add-expense">Add Expense</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href = "/expenses">View Expenses</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href = "/reports">Reports</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href = "/bills">Bills</a>
+                    </div>
+                </nav>
+            </div>
+            <div class = "account">
+                <div class="logo">
+                    <a href = "/account">
+                       <img src="{{ url_for('static', filename='account_logo.png') }}" alt="logo">
+                       </a>
+                </div>
+                <div class="text">
+                    <a href = "/account">Account</a>
+                </div>
+            </div>   
+        </div>
+        <div class = "right">
+
+            <h1 class="title">Add Expense</h1>
+
+            <form method="POST">
+                <label>Amount:</label><br>
+                <input type="number" step="0.01" name="amount" required><br><br>
+
+                <label>Category:</label><br>
+                <select name="category">
+                    <option>Food</option>
+                    <option>Transport</option>
+                    <option>Education</option>
+                    <option>Health</option>
+                    <option>Shopping</option>
+                    <option>Travel</option>
+                    <option>Investment</option>
+                    <option>Donation</option>
+                    <option>Bills</option>
+                    <option>Entertainment</option>
+                    <option>Other</option>
+                </select><br><br>
+
+                <label>Expense Type:</label><br>
+                <select name="expense_type">
+                    <option>Fixed</option>
+                    <option>Variable</option>
+                </select><br><br>
+
+                <label>Priority:</label><br>
+                <select name="priority">
+                    <option>Need</option>
+                    <option>Want</option>
+                </select><br><br>
+
+                <label>Note:</label><br>
+                <textarea name="note"></textarea><br><br>
+
+                <label>Date:</label><br>
+                <input type="date" name="date" required><br><br>
+
+                <button type="submit">Save Expense</button>
+            </form>
+        </div>
+    </div>
+    <script>
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
+}
+ const menuBtn = document.getElementById("mobileMenuBtn");
+        const sidebar = document.querySelector(".left");
+        const overlay = document.getElementById("mobileOverlay");
+
+        function openSidebar() {
+            sidebar.classList.add("sidebar-open");
+            overlay.classList.add("overlay-active");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("sidebar-open");
+            overlay.classList.remove("overlay-active");
+        }
+
+        menuBtn.addEventListener("click", function () {
+
+            if (sidebar.classList.contains("sidebar-open")) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+
+        });
+
+        overlay.addEventListener("click", closeSidebar);
+
+
+        /* =========================
+        SWIPE DETECTION
+        ========================= */
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener("touchstart", function(event) {
+
+            touchStartX = event.touches[0].clientX;
+
+        });
+
+
+    document.addEventListener("touchend", function(event) {
+
+        touchEndX = event.changedTouches[0].clientX;
+
+        const swipeDistance = touchEndX - touchStartX;
+
+
+        /* Swipe from left to right */
+        if (touchStartX < 40 && swipeDistance > 70) {
+            openSidebar();
+        }
+
+
+        /* Swipe from right to left */
+        if (swipeDistance < -70 && sidebar.classList.contains("sidebar-open")) {
+            closeSidebar();
+        }
+
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+body {
+  margin : 0;
+  padding : 0;
+  overflow: hidden;
+  background-color: #14293a;
+  font-family: sans-serif;
+}
+.container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+}
+.left{
+  background-color: rgba(22, 21, 21, 0.639);
+  margin: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.account{
+  border-radius: 10px;  
+  height: 70px;
+  text-align: center;
+  background-color: rgba(0, 255, 255, 0.455);
+  align-items: flex-start;
+  gap: 15px;
+  background-color: rgba(22, 21, 21, 0.042);
+  display: flex;
+}
+.logo{
+  width:20%;
+  height: 66%;
+  border-radius: 40px;
+}
+.logo img{
+  width: 100%;
+  height: 100%;
+  display:block;
+}
+.text{
+  width: 80%;
+  gap: 15px;
+  padding-top: 15px;
+  text-align: left;
+  color: #fff;
+}
+.text a{
+  text-decoration: none;
+  color: #fff;
+  font-size: clamp(1rem, 0.91rem + 0.43vw, 1.25rem);
+}
+.right {
+  background-color: #8ca3c2;
+  margin: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-grow: 1;
+  border-radius: 20px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 40px 60px;
+  box-sizing: border-box;
+}
+
+/* ===== Right container content styling ===== */
+
+.right .title {
+  text-align: center;
+  font-size: 50px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+.right h2 {
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  margin: 18px 0 10px;
+  font-weight: 600;
+}
+
+.right h3 {
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  margin: 10px 0;
+  background-color: rgba(255, 255, 255, 0.4);
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+.right hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  margin: 25px 0;
+}
+
+/* Forms */
+.right form {
+  background-color: rgba(255, 255, 255, 0.35);
+  padding: 25px 30px;
+  border-radius: 14px;
+  max-width: 480px;
+  margin: 15px 0;
+}
+
+.right form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size:  clamp(0.75rem, 0.7rem + 0.3vw, 0.8125rem);
+}
+
+.right form input,
+.right form select,
+.right form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.right form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.right form button {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 8px;
+  background-color: #16151599;
+  color: white;
+  font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.right form button:hover {
+  opacity: 0.85;
+}
+
+/* Custom date range form should sit inline nicely */
+.right form label {
+  display: inline-block;
+  margin-right: 8px;
+}
+.right form:has(input[name="start_date"]) {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  flex-wrap: wrap;
+  max-width: none;
+}
+.right form:has(input[name="start_date"]) label {
+  margin-bottom: 0;
+}
+.right form:has(input[name="start_date"]) input {
+  margin-bottom: 0;
+  width: auto;
+}
+
+/* Tables */
+.right table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0 25px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  overflow: hidden;
+  border: none !important;
+}
+
+.right table th {
+  background-color: rgba(0, 0, 0, 0.15);
+  text-align: left;
+  padding: 12px 16px !important;
+  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.8125rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.right table td {
+  padding: 12px 16px !important;
+  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.8125rem);
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+.right table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Bills list */
+.right ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 25px;
+}
+
+.right ul li {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.8125rem);
+}
+
+/* Links */
+.right a {
+  color: #16151599;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.right a:hover {
+  text-decoration: underline;
+}
+
+.right > a,
+.right form + br + a,
+.right table + br + a {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* Sidebar (unchanged colors) */
+.menu-item{
+  margin-top: 10px;
+  border : 1px solid white;
+  border-radius: 10px;  
+  height: 40px;
+  text-align: center;
+  background-color: rgba(0, 255, 255, 0.455);
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 15px;
+}
+.menu a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin: 12px 0;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+}
+.menu a:hover {
+    color: #d3e58f;
+}
+.right form {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 480px;
+}
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 300px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.popup-content h3 {
+    margin-bottom: 20px;
+    color: #16a34a;
+}
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 32px 40px;
+  text-align: center;
+}
+
+.popup-box p {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.popup-box button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  background-color: #14293a;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* =========================
+   MODERN LOGIN / REGISTER
+========================= */
+
+.auth-body{
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #d7e4ea;
+    font-family: Arial, sans-serif;
+}
+
+.modern-auth-card{
+    width: 400px;
+    background: linear-gradient(180deg, #182a36 0%, #111111 100%);
+    border-radius: 28px;
+    padding: 40px 32px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+}
+
+.modern-title{
+    color: white;
+    text-align: center;
+    font-size: 38px;
+    margin: 10px 0 8px;
+    font-weight: 700;
+}
+
+.modern-subtitle{
+    color: #cbd5e1;
+    text-align: center;
+    margin-bottom: 35px;
+    font-size: 15px;
+}
+
+.modern-form{
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.input-group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label{
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.input-group input{
+    background: #0f1418;
+    border: 2px solid rgba(255,255,255,0.08);
+    color: white;
+    padding: 16px 18px;
+    border-radius: 18px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.25s ease;
+}
+
+.input-group input::placeholder{
+    color: #8b949e;
+}
+
+.input-group input:focus{
+    border-color: #4f7cff;
+    box-shadow: 0 0 0 4px rgba(79,124,255,0.22);
+}
+
+.modern-btn{
+    margin-top: 10px;
+    background: linear-gradient(180deg, #4f7cff 0%, #2f5bff 100%);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.25s ease;
+    box-shadow: 0 10px 20px rgba(47,91,255,0.35);
+}
+
+.modern-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 14px 24px rgba(47,91,255,0.45);
+}
+
+.modern-divider{
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+    margin: 28px 0 22px;
+}
+
+.modern-bottom{
+    text-align: center;
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.modern-bottom a{
+    color: #6ea0ff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.modern-bottom a:hover{
+    text-decoration: underline;
+}
+
+.page-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+
+/* =========================
+   MOBILE SIDEBAR
+========================= */
+
+.mobile-menu-btn {
+    display: none;
+}
+
+
+/* =========================
+   MOBILE ONLY
+========================= */
+
+@media (max-width: 768px) {
+
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Main page container */
+    .container {
+        width: 100%;
+        min-height: 100vh;
+        height: auto;
+        display: block;
+    }
+
+
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    .left {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 280px;
+        height: 100vh;
+
+        margin: 0;
+        padding: 20px;
+
+        border-radius: 0 20px 20px 0;
+
+        box-sizing: border-box;
+
+        z-index: 1001;
+
+        /* Hidden outside left side */
+        transform: translateX(-100%);
+
+        transition: transform 0.3s ease;
+    }
+
+
+    /* Sidebar visible */
+    .left.sidebar-open {
+        transform: translateX(0);
+    }
+
+
+    /* =========================
+       MAIN CONTENT
+    ========================= */
+
+      .right {
+        width: 100%;
+        height: 100vh;
+
+        margin: 0;
+
+        border-radius: 0;
+
+        padding: 70px 20px 30px;
+
+        box-sizing: border-box;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    /* =========================
+       TWO-LINE MENU ICON
+    ========================= */
+
+    .mobile-menu-btn {
+
+        display: flex;
+
+        position: fixed;
+
+        top: 18px;
+        left: 18px;
+
+        width: 32px;
+        height: 32px;
+
+        padding: 0;
+        margin: 0;
+
+        background: transparent;
+        border: none;
+
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        gap: 6px;
+
+        cursor: pointer;
+
+        z-index: 1100;
+    }
+
+
+    /* Two horizontal lines */
+
+    .mobile-menu-btn span {
+
+        display: block;
+
+        width: 23px;
+        height: 2px;
+
+        background-color: #F8FAFC;
+
+        border-radius: 2px;
+
+        transition: 0.25s ease;
+    }
+
+
+    /* =========================
+       OVERLAY
+    ========================= */
+
+    .mobile-overlay {
+
+        display: none;
+
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background-color: rgba(0, 0, 0, 0.45);
+
+        z-index: 1000;
+    }
+
+
+    /* Overlay visible */
+
+    .mobile-overlay.overlay-active {
+        display: block;
+    }
+
+
+    /* =========================
+       MOBILE TITLE
+    ========================= */
+
+    .right .title {
+        font-size: clamp(2rem, 8vw, 3rem);
+        margin-top: 10px;
+    }
+
+
+    /* =========================
+       MOBILE TABLE — stacked cards instead of horizontal scroll
+    ========================= */
+
+    .right table {
+        border: none !important;
+        background: none;
+        box-shadow: none;
+        border-collapse: collapse;
+    }
+
+    .right table tr:first-child {
+        display: none; /* hide the header row on mobile */
+    }
+
+    .right table tr {
+        display: block;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        padding: 8px 0;
+    }
+
+    .right table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+        font-size: 0.85rem;
+    }
+
+    .right table td:first-child {
+        border-top: none !important;
+    }
+
+    .right table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        opacity: 0.6;
+        margin-right: 12px;
+    }
+
+}

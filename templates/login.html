@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SpendingBuddy</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+
+<body class="auth-body">
+
+    <div class="modern-auth-card">
+
+        <svg class="modern-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2a4 4 0 000 8h4V6a4 4 0 00-4-4z" fill="#7c9bff"/>
+            <path d="M8 10a4 4 0 000 8h4v-8H8z" fill="#5b7cff"/>
+            <path d="M8 18a4 4 0 104 4v-4H8z" fill="#3757e8"/>
+            <path d="M16 10a4 4 0 100 8 4 4 0 000-8z" fill="#a3b6ff"/>
+        </svg>
+
+        <h1 class="modern-title">Welcome back</h1>
+        <p class="modern-subtitle">Please login to your account</p>
+
+        <form class="modern-form" method="POST">
+
+            <div class="input-group plain">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-group framed">
+                <label>Password</label>
+                <div class="input-row">
+                    <input type="password" name="password" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
+                        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="modern-btn">Login</button>
+
+        </form>
+
+        <div class="modern-divider"></div>
+        <a href="/login/google" class="google-btn">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+                <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+                <path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/>
+                <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+            </svg>
+            Sign in with Google
+        </a>
+
+        <p class="modern-bottom">
+            Don't have an account? <a href="/register">Sign up</a>
+        </p>
+
+    </div>
+
+    <script>
+        const toggle = document.getElementById('togglePassword');
+        const pwd = document.getElementById('password');
+        const eye = document.getElementById('eyeIcon');
+        const eyeOpen = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle>';
+        const eyeClosed = '<path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.6 21.6 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.6 21.6 0 01-2.61 3.53M14.12 14.12a3 3 0 11-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+
+        toggle.addEventListener('click', () => {
+            const showing = pwd.type === 'text';
+            pwd.type = showing ? 'password' : 'text';
+            eye.innerHTML = showing ? eyeOpen : eyeClosed;
+            toggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+        });
+    </script>
+
+</body>
+</html>

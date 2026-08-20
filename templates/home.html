@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SpendingBuddy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+        <span></span>
+        <span></span>
+    </button>
+
+<div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class = "container">
+        <div class = "left">
+            <div>
+                <h1 style="color: #F8FAFC;">SpendingBuddy</h1>
+                <hr class="sidebar-line"style="border: 1px solid #60A5FA;"width="100%">
+                <nav class = "menu">
+                    <div class = "menu-item">
+                        <a href="/">Dashboard</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href="/add-expense">Add Expense</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href = "/expenses">View Expenses</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href = "/reports">Reports</a>
+                    </div>
+                    <div class = "menu-item">
+                        <a href = "/bills">Bills</a>
+                    </div>
+                </nav>
+            </div>
+            <div class = "account">
+                <div class="logo">
+                    <a href = "/account">
+                       <img src="{{ url_for('static', filename='account_logo.png') }}" alt="logo">
+                       </a>
+                </div>
+                <div class="acc">
+                    <a href = "/account">Account</a>
+                </div>
+            </div>
+        </div>
+
+<!-- ############  Right ############# -->
+
+        <div class = "right">
+            <h1 class = "dashboard_title">Overview</h1>
+
+        <!-- Top content grid -->
+            {% if overdue_count > 0 %}
+            <div class="notification-banner">
+                ⚠️ You have {{ overdue_count }} overdue bill{{ 's' if overdue_count != 1 else '' }} —
+                <a href="/bills">review now →</a>
+            </div>
+            {% endif %}
+            <div class="dashboard_grid">
+                <div class="card stat-card">
+                    <h3>Current Balance</h3>
+                    <span class="amount">₹{{ current_balance }}</span>
+                </div>
+
+                <div class="card stat-card">
+                    <h3>Income</h3>
+                    <div class="income-display" id="incomeDisplay">
+                        <span class="amount">₹{{ income }}</span>
+                        <button type="button" class="edit-btn" onclick="toggleIncomeEdit()">✎</button>
+                    </div>
+                    <form method="POST" class="income-form" id="incomeForm" style="display: none;">
+                        <input type="number" step="0.01" name="income" value="{{ income }}">
+                        <button type="submit">Save</button>
+                    </form>
+                </div>
+
+                <div class="card stat-card">
+                    <h3>Expenses</h3>
+                    <span class="amount">₹{{ expenses }}</span>
+                </div>
+            </div>
+
+        <!-- Main Content Grid -->
+
+            <div class="main_grid">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Recent Expenses</h2>
+                        <a href="/expenses">View All →</a>
+                    </div>
+                    <div class="txn-list">
+                        {% for e in recent_expenses %}
+                        <div class="txn-row">
+                            <div class="txn-left">
+                                <div class="txn-icon">
+                                    {{ e.category[0] }}
+                                </div>
+                                <div class="txn-name">{{ e.title }}</div>
+                            </div>
+                            <div class="txn-right">
+                                <div class="txn-amount {{ 'positive' if e.amount > 0 else 'negative' }}">
+                                    {{ '+' if e.amount > 0 else '' }}₹{{ e.amount }}
+                                </div>
+                                <div class="txn-date">{{ e.date }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            <!-- Side Panels -->
+
+                <div class="side-panels">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Spending Breakdown</h2>
+                            <a href="/reports">See Details →</a>
+                        </div>
+
+                        <!-- Donut Chart -->
+                        <div class="breakdown">
+                            {% set total = categories | sum(attribute='amount') %}
+                            {% set ns = namespace(cursor=0, gradient="") %}
+                            {% for c in categories %}
+                                {% set start = ns.cursor %}
+                                {% set pct = (c.amount / total * 100) if total > 0 else 0 %}
+                                {% set ns.cursor = ns.cursor + pct %}
+                                {% set slice = 'var(--c' ~ (loop.index0 % 5) ~ ') ' ~ start|round(1) ~ '% ' ~ ns.cursor|round(1) ~ '%' %}
+                                {% set ns.gradient = ns.gradient ~ (', ' if not loop.first else '') ~ slice %}
+                            {% endfor %}
+                            <div class="donut" style="background: conic-gradient({{ ns.gradient }});">
+                                <div class="donut-center">
+                                    <span class="donut-amount">₹{{ expenses }}</span>
+                                    <span class="donut-label">of ₹{{ budget_limit }} limit</span>
+                                </div>
+                            </div>
+                            <div class="legend">
+                                {% for c in categories %}
+                                <div class="legend-item">
+                                    <span class="legend-dot"></span>
+                                    <div>
+                                        <div class="legend-label">{{ c.name }}</div>
+                                        <div class="legend-value">₹{{ c.amount }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Bills</h2>
+                            <a href="/bills">View All →</a>
+                        </div>
+                        <div class="bills-list">
+                            <div class="bill-row" style="border-left-color: #34D399;">
+                                <span>Paid Bills</span>
+                                <span class="bill-amount">₹{{ paid_bills }}</span>
+                            </div>
+                            <div class="bill-row" style="border-left-color: #FBBF24;">
+                                <span>Total Upcoming</span>
+                                <span class="bill-amount">₹{{ upcoming_bills }}</span>
+                            </div>
+                            <div class="bill-row" style="border-left-color: #60A5FA;">
+                                <span>Due Soon</span>
+                                <span class="bill-amount">₹{{ due_soon }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleIncomeEdit() {
+            document.getElementById('incomeDisplay').style.display = 'none';
+            document.getElementById('incomeForm').style.display = 'flex';
+        }
+
+        function toggleIncomeEdit() {
+            document.getElementById('incomeDisplay').style.display = 'none';
+            document.getElementById('incomeForm').style.display = 'flex';
+        }
+
+        const menuBtn = document.getElementById("mobileMenuBtn");
+        const sidebar = document.querySelector(".left");
+        const overlay = document.getElementById("mobileOverlay");
+
+        function openSidebar() {
+            sidebar.classList.add("sidebar-open");
+            overlay.classList.add("overlay-active");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("sidebar-open");
+            overlay.classList.remove("overlay-active");
+        }
+
+        menuBtn.addEventListener("click", function () {
+            if (sidebar.classList.contains("sidebar-open")) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+
+        overlay.addEventListener("click", closeSidebar);
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener("touchstart", function(event) {
+            touchStartX = event.touches[0].clientX;
+        });
+
+        document.addEventListener("touchend", function(event) {
+            touchEndX = event.changedTouches[0].clientX;
+            const swipeDistance = touchEndX - touchStartX;
+
+            if (touchStartX < 40 && swipeDistance > 70) {
+                openSidebar();
+            }
+
+            if (swipeDistance < -70 && sidebar.classList.contains("sidebar-open")) {
+                closeSidebar();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - SpendingBuddy</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+</head>
+
+<body class="auth-body">
+
+    <div class="account-card">
+
+        {% if session.username %}
+
+            <div class="account-avatar">
+                <img src="{{ url_for('static', filename='account_logo.png') }}" alt="User">
+            </div>
+
+            <h1 class="auth-title">Account</h1>
+
+            <div class="account-name">{{ session.username }}</div>
+            <div class="account-email">Logged in to SpendingBuddy</div>
+
+            <a href="/"><button class="account-btn">Go to Dashboard</button></a>
+            <a href="/logout"><button class="account-btn logout-btn">Logout</button></a>
+
+        {% else %}
+
+            <h1 class="auth-title">Account</h1>
+            <p class="auth-subtitle">You are not logged in.</p>
+
+            <a href="/login"><button class="account-btn">Login</button></a>
+            <a href="/register"><button class="account-btn logout-btn">Create Account</button></a>
+
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
