@@ -1,10 +1,14 @@
-import sqlite3
+import os
+import psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # =========================
 # DATABASE CONNECTION
 # =========================
 
-conn = sqlite3.connect("spendingbuddy.db")
+conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 cursor = conn.cursor()
 
 
@@ -14,7 +18,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT,
@@ -29,14 +33,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS income (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
     amount REAL NOT NULL,
     source TEXT NOT NULL,
     note TEXT,
-    date TEXT NOT NULL,
-
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    date TEXT NOT NULL
 )
 """)
 
@@ -47,17 +49,15 @@ CREATE TABLE IF NOT EXISTS income (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS expenses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
     amount REAL NOT NULL,
     category TEXT NOT NULL,
     expense_type TEXT NOT NULL,
     priority TEXT NOT NULL,
     note TEXT,
     date TEXT NOT NULL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
 
@@ -68,14 +68,12 @@ CREATE TABLE IF NOT EXISTS expenses (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS bills (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
     bill_name TEXT NOT NULL,
     amount REAL NOT NULL,
     due_date TEXT NOT NULL,
-    status TEXT DEFAULT 'Pending',
-
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    status TEXT DEFAULT 'Pending'
 )
 """)
 
@@ -86,12 +84,10 @@ CREATE TABLE IF NOT EXISTS bills (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS budget (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
     category TEXT NOT NULL,
-    monthly_limit REAL NOT NULL,
-
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    monthly_limit REAL NOT NULL
 )
 """)
 
@@ -102,12 +98,10 @@ CREATE TABLE IF NOT EXISTS budget (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER UNIQUE NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id),
     income REAL DEFAULT 0,
-    budget_limit REAL DEFAULT 5000,
-
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    budget_limit REAL DEFAULT 5000
 )
 """)
 
@@ -119,4 +113,4 @@ CREATE TABLE IF NOT EXISTS settings (
 conn.commit()
 conn.close()
 
-print("Database and tables created successfully!")
+print("PostgreSQL database and tables created successfully!")

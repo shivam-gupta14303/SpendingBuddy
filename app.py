@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, session, url_for
-import sqlite3
+import psycopg2
 from werkzeug.security import generate_password_hash, check_password_hash
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
@@ -19,6 +19,10 @@ oauth.register(
 )
 
 
+def get_db_connection():
+    return psycopg2.connect(os.getenv("DATABASE_URL"))
+
+
 # =========================================================
 # HOME / DASHBOARD
 # =========================================================
@@ -31,16 +35,16 @@ def home():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # -----------------------------------------------------
     # Make sure this user has a settings row
     # -----------------------------------------------------
-    cursor.execute("SELECT id FROM settings WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT id FROM settings WHERE user_id = %s", (user_id,))
     if cursor.fetchone() is None:
         cursor.execute(
-            "INSERT INTO settings (user_id, income, budget_limit) VALUES (?, 0, 5000)",
+            "INSERT INTO settings (user_id, income, budget_limit) VALUES (%s, 0, 5000)",
             (user_id,)
         )
         conn.commit()
@@ -51,7 +55,7 @@ def home():
     if request.method == "POST":
         new_income = request.form["income"]
         cursor.execute(
-            "UPDATE settings SET income = ? WHERE user_id = ?",
+            "UPDATE settings SET income = %s WHERE user_id = %s",
             (new_income, user_id)
         )
         conn.commit()
@@ -59,13 +63,13 @@ def home():
     # -----------------------------------------------------
     # Read income + budget limit
     # -----------------------------------------------------
-    cursor.execute("SELECT income, budget_limit FROM settings WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT income, budget_limit FROM settings WHERE user_id = %s", (user_id,))
     income, budget_limit = cursor.fetchone()
 
     # -----------------------------------------------------
     # TOTAL EXPENSES
     # -----------------------------------------------------
-    cursor.execute("SELECT SUM(amount) FROM expenses WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT SUM(amount) FROM expenses WHERE user_id = %s", (user_id,))
     total_expenses = cursor.fetchone()[0] or 0
 
     current_balance = income - total_expenses
@@ -76,7 +80,7 @@ def home():
     cursor.execute("""
         SELECT amount, category, note, date
         FROM expenses
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY date DESC, id DESC
         LIMIT 5
     """, (user_id,))
@@ -91,30 +95,30 @@ def home():
     # -----------------------------------------------------
     cursor.execute("""
         SELECT category, SUM(amount) FROM expenses
-        WHERE user_id = ? GROUP BY category ORDER BY SUM(amount) DESC
+        WHERE user_id = %s GROUP BY category ORDER BY SUM(amount) DESC
     """, (user_id,))
     categories = [{"name": category, "amount": amount} for category, amount in cursor.fetchall()]
 
     # -----------------------------------------------------
     # BILLS
     # -----------------------------------------------------
-    cursor.execute("SELECT SUM(amount) FROM bills WHERE user_id = ? AND status = 'Paid'", (user_id,))
+    cursor.execute("SELECT SUM(amount) FROM bills WHERE user_id = %s AND status = 'Paid'", (user_id,))
     paid_bills = cursor.fetchone()[0] or 0
 
-    cursor.execute("SELECT SUM(amount) FROM bills WHERE user_id = ? AND status = 'Pending'", (user_id,))
+    cursor.execute("SELECT SUM(amount) FROM bills WHERE user_id = %s AND status = 'Pending'", (user_id,))
     upcoming_bills = cursor.fetchone()[0] or 0
 
     cursor.execute("""
         SELECT SUM(amount) FROM bills
-        WHERE user_id = ? AND status = 'Pending'
-        AND julianday(due_date) - julianday('now') BETWEEN 0 AND 3
+        WHERE user_id = %s AND status = 'Pending'
+        AND (due_date::date - CURRENT_DATE) BETWEEN 0 AND 3
     """, (user_id,))
     due_soon = cursor.fetchone()[0] or 0
 
     cursor.execute("""
         SELECT COUNT(*) FROM bills
-        WHERE user_id = ? AND status = 'Pending'
-        AND julianday('now') - julianday(due_date) > 0
+        WHERE user_id = %s AND status = 'Pending'
+        AND (CURRENT_DATE - due_date::date) > 0
     """, (user_id,))
     overdue_count = cursor.fetchone()[0] or 0
 
@@ -156,7 +160,7 @@ def add_expense():
 
         user_id = session["user_id"]
 
-        conn = sqlite3.connect("spendingbuddy.db")
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -170,7 +174,7 @@ def add_expense():
                 note,
                 date
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             user_id,
             amount,
@@ -207,7 +211,7 @@ def view_expenses():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -220,7 +224,7 @@ def view_expenses():
             note,
             date
         FROM expenses
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY date DESC, id DESC
     """, (user_id,))
 
@@ -232,7 +236,7 @@ def view_expenses():
     cursor.execute("""
         SELECT SUM(amount)
         FROM expenses
-        WHERE user_id = ?
+        WHERE user_id = %s
     """, (user_id,))
 
     total_spent = cursor.fetchone()[0] or 0
@@ -259,13 +263,13 @@ def delete_expense(expense_id):
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
         DELETE FROM expenses
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id = %s
+        AND user_id = %s
     """, (expense_id, user_id))
 
     conn.commit()
@@ -286,7 +290,7 @@ def reports():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
 
@@ -297,8 +301,8 @@ def reports():
     cursor.execute("""
         SELECT SUM(amount)
         FROM expenses
-        WHERE user_id = ?
-        AND date = date('now')
+        WHERE user_id = %s
+        AND date = TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD')
     """, (user_id,))
 
     today_spent = cursor.fetchone()[0] or 0
@@ -311,9 +315,9 @@ def reports():
     cursor.execute("""
         SELECT SUM(amount)
         FROM expenses
-        WHERE user_id = ?
-        AND strftime('%Y-%m', date)
-            = strftime('%Y-%m', 'now')
+        WHERE user_id = %s
+        AND TO_CHAR(date::date, 'YYYY-MM')
+            = TO_CHAR(CURRENT_DATE, 'YYYY-MM')
     """, (user_id,))
 
     month_spent = cursor.fetchone()[0] or 0
@@ -326,7 +330,7 @@ def reports():
     cursor.execute("""
         SELECT SUM(amount)
         FROM expenses
-        WHERE user_id = ?
+        WHERE user_id = %s
     """, (user_id,))
 
     total_spent = cursor.fetchone()[0] or 0
@@ -339,7 +343,7 @@ def reports():
     cursor.execute("""
         SELECT category, SUM(amount)
         FROM expenses
-        WHERE user_id = ?
+        WHERE user_id = %s
         GROUP BY category
         ORDER BY SUM(amount) DESC
     """, (user_id,))
@@ -364,8 +368,8 @@ def reports():
         cursor.execute("""
             SELECT SUM(amount)
             FROM expenses
-            WHERE user_id = ?
-            AND date BETWEEN ? AND ?
+            WHERE user_id = %s
+            AND date BETWEEN %s AND %s
         """, (user_id, start_date, end_date))
 
         range_total = cursor.fetchone()[0] or 0
@@ -404,7 +408,7 @@ def add_bill():
 
         user_id = session["user_id"]
 
-        conn = sqlite3.connect("spendingbuddy.db")
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -415,7 +419,7 @@ def add_bill():
                 amount,
                 due_date
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         """, (
             user_id,
             bill_name,
@@ -444,7 +448,7 @@ def view_bills():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
 
@@ -460,7 +464,7 @@ def view_bills():
             due_date,
             status
         FROM bills
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY due_date
     """, (user_id,))
 
@@ -479,9 +483,9 @@ def view_bills():
             due_date,
             status
         FROM bills
-        WHERE user_id = ?
+        WHERE user_id = %s
         AND status = 'Pending'
-        AND julianday(due_date) - julianday('now')
+        AND (due_date::date - CURRENT_DATE)
             BETWEEN 0 AND 3
         ORDER BY due_date
     """, (user_id,))
@@ -511,7 +515,7 @@ def mark_paid(bill_id):
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
 
@@ -522,8 +526,8 @@ def mark_paid(bill_id):
     cursor.execute("""
         SELECT bill_name, amount
         FROM bills
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id = %s
+        AND user_id = %s
         AND status = 'Pending'
     """, (bill_id, user_id))
 
@@ -545,8 +549,8 @@ def mark_paid(bill_id):
     cursor.execute("""
         UPDATE bills
         SET status = 'Paid'
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id = %s
+        AND user_id = %s
     """, (bill_id, user_id))
 
 
@@ -565,7 +569,7 @@ def mark_paid(bill_id):
             note,
             date
         )
-        VALUES (?, ?, ?, ?, ?, ?, date('now'))
+        VALUES (%s, %s, %s, %s, %s, %s, TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD'))
     """, (
         user_id,
         amount,
@@ -594,13 +598,13 @@ def delete_bill(bill_id):
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
         DELETE FROM bills
-        WHERE id = ?
-        AND user_id = ?
+        WHERE id = %s
+        AND user_id = %s
     """, (bill_id, user_id))
 
     conn.commit()
@@ -624,7 +628,7 @@ def register():
             request.form["password"]
         )
 
-        conn = sqlite3.connect("spendingbuddy.db")
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         try:
@@ -636,7 +640,7 @@ def register():
                     email,
                     password
                 )
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
             """, (
                 username,
                 email,
@@ -649,8 +653,9 @@ def register():
             return redirect("/login")
 
 
-        except sqlite3.IntegrityError:
+        except psycopg2.IntegrityError:
 
+            conn.rollback()
             conn.close()
 
             return "Username or Email already exists"
@@ -671,7 +676,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("spendingbuddy.db")
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -680,7 +685,7 @@ def login():
                 username,
                 password
             FROM users
-            WHERE username = ?
+            WHERE username = %s
         """, (username,))
 
         user = cursor.fetchone()
@@ -688,7 +693,7 @@ def login():
         conn.close()
 
 
-        if user and check_password_hash(
+        if user and user[2] and check_password_hash(
             user[2],
             password
         ):
@@ -736,7 +741,7 @@ def login_google():
     return oauth.google.authorize_redirect(redirect_uri)
 
 # ===========================================================
-# Google Login 
+# Google Login
 # ===========================================================
 
 @app.route("/login/google/callback")
@@ -748,19 +753,19 @@ def login_google_callback():
     email = user_info["email"]
     name = user_info.get("name", email.split("@")[0])
 
-    conn = sqlite3.connect("spendingbuddy.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, username FROM users WHERE google_id = ?", (google_id,))
+    cursor.execute("SELECT id, username FROM users WHERE google_id = %s", (google_id,))
     user = cursor.fetchone()
 
     if user is None:
         cursor.execute(
-            "INSERT INTO users (username, email, google_id) VALUES (?, ?, ?)",
+            "INSERT INTO users (username, email, google_id) VALUES (%s, %s, %s) RETURNING id",
             (name, email, google_id)
         )
+        user_id = cursor.fetchone()[0]
         conn.commit()
-        user_id = cursor.lastrowid
         username = name
     else:
         user_id, username = user
