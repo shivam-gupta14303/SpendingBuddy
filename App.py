@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 load_dotenv()
-app.secret_key = "spendingbuddy_secret_key"
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 oauth = OAuth(app)
 oauth.register(
