@@ -16,51 +16,67 @@ A personal expense-tracking web app built with Flask. Track income, expenses, an
 
 ## Tech stack
 
-- **Backend:** Flask, SQLite (via `sqlite3`)
+- **Backend:** Flask, PostgreSQL (via `psycopg2`)
 - **Auth:** Werkzeug password hashing, Authlib for Google OAuth
 - **Frontend:** Jinja2 templates, vanilla CSS/JS (no frontend framework)
+- **Deployment:** Render (Web Service + managed PostgreSQL)
+- **Production server:** Gunicorn
 
-## Setup
+## Local setup
 
-### 1. Clone and install dependencies
+### 1. Install dependencies
 
 ```bash
+python -m venv venv
+venv\Scripts\Activate.ps1      # Windows PowerShell
 pip install -r requirements.txt
 ```
 
-### 2. Create the database
+### 2. Set up PostgreSQL locally
 
-Run your database setup script once to create `spendingbuddy.db` and all required tables:
-
-```bash
-python database.py
-```
+Create a database (e.g. named `SpendingBuddy`) using pgAdmin or the `psql` CLI.
 
 ### 3. Configure environment variables
 
 Create a `.env` file in the project root:
 
 ```
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/SpendingBuddy
+FLASK_SECRET_KEY=your-generated-secret-key
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 ```
 
-**Note:** `.env` should never be committed to version control — add it to `.gitignore`.
+Generate `FLASK_SECRET_KEY` with:
+```python
+import secrets
+print(secrets.token_hex(32))
+```
+
+**`.env` should never be committed** — it's already covered in `.gitignore`.
 
 ### 4. Google OAuth setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com) and create a project.
-2. Under **APIs & Services → OAuth consent screen**, configure an External app and add your own account as a test user.
+2. Under **APIs & Services → OAuth consent screen**, configure an External app and add your account as a test user.
 3. Under **APIs & Services → Credentials**, create an **OAuth Client ID** (type: Web application).
-4. Add the following to **Authorized redirect URIs**:
+4. Add to **Authorized redirect URIs**:
    - `http://localhost:5000/login/google/callback`
    - `http://127.0.0.1:5000/login/google/callback`
-5. Add the following to **Authorized JavaScript origins**:
+5. Add to **Authorized JavaScript origins**:
    - `http://localhost:5000`
    - `http://127.0.0.1:5000`
-6. When deploying, add your production equivalents (`https://yourdomain.com/login/google/callback`, etc.) alongside the local ones.
+6. Add your production Render URL equivalents once deployed (see below).
 
-### 5. Run the app
+### 5. Create the database tables
+
+```bash
+python database.py
+```
+
+This creates all required tables (`users`, `income`, `expenses`, `bills`, `budget`, `settings`) in PostgreSQL.
+
+### 6. Run the app
 
 ```bash
 python app.py
@@ -68,15 +84,33 @@ python app.py
 
 Visit `http://localhost:5000` (or `http://127.0.0.1:5000`) in your browser.
 
+## Deployment (Render)
+
+1. **Create a PostgreSQL database** on Render (New → PostgreSQL). Copy the **Internal Database URL** for use by the deployed app, and the **External Database URL** for running `database.py` from your local machine against it.
+2. **Create the tables on Render's database**: temporarily point your local `.env`'s `DATABASE_URL` at the External Database URL, run `python database.py` once, then switch `.env` back to your local database for continued local development.
+3. **Create a Web Service** on Render, connected to this GitHub repo.
+   - Build command: `pip install -r requirements.txt`
+   - Start command: `gunicorn app:app`
+4. **Set environment variables** in the Web Service's Environment tab (not `.env` — Render doesn't read that file):
+   - `DATABASE_URL` → the **Internal** Database URL
+   - `FLASK_SECRET_KEY`
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+5. **Update Google Cloud Console** with your live Render URL:
+   - Authorized redirect URI: `https://your-app-name.onrender.com/login/google/callback`
+   - Authorized JavaScript origin: `https://your-app-name.onrender.com`
+
+   (No code changes needed here — the app builds its redirect URI dynamically via `url_for(..., _external=True)`.)
+
 ## Project structure
 
 ```
 SpendingBuddy/
 ├── app.py                  # Flask routes and application logic
-├── database.py              # One-time database/table setup script
+├── database.py              # One-time PostgreSQL table setup script
 ├── requirements.txt
-├── .env                      # Google OAuth credentials (not committed)
-├── spendingbuddy.db          # SQLite database (created after running database.py)
+├── .env                      # Local secrets (not committed)
+├── .gitignore
 ├── static/
 │   ├── style.css              # Dashboard styling
 │   ├── pages.css              # Styling for add-expense, bills, expenses, reports
@@ -97,8 +131,9 @@ SpendingBuddy/
 ## Known limitations / things to revisit
 
 - Google-authenticated users have a `NULL` password — password login won't work for accounts created via Google unless a password is set separately.
-- `app.secret_key` is currently hardcoded in `app.py`; move this to an environment variable before deploying to production.
 - The `income` table exists in the schema but isn't currently used — income is stored as a single editable value in the `settings` table instead.
+- Render's free-tier PostgreSQL databases expire after 90 days unless upgraded to a paid plan.
+- Render's free-tier Web Services spin down after inactivity, so the first request after idling may be slow to respond.
 - Phone number (OTP) login is planned but not yet implemented.
 
 ## License
